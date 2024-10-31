@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sorteo;
-use App\Models\Juego; // Asegúrate de importar el modelo Juego
+use App\Models\Juego; 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SorteoController extends Controller
 {
@@ -18,22 +19,31 @@ class SorteoController extends Controller
     // Mostrar el formulario para crear un nuevo sorteo
     public function create()
     {
-        $juegos = Juego::all(); // Obtener todos los juegos para el select
+        $juegos = Juego::all(); 
         return view('sorteos.create', compact('juegos'));
     }
 
     // Almacenar un nuevo sorteo
     public function store(Request $request)
     {
-        // Validar datos
         $request->validate([
             'juego_id' => 'nullable|exists:juegos,id',
             'titulo' => 'required|string|max:100',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'requisitos' => 'nullable|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_final' => 'required|date|after:fecha_inicio',
         ]);
 
-        // Crear nuevo sorteo
-        Sorteo::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('imagen')) {
+            // Guardar la imagen y obtener la ruta
+            $path = $request->file('imagen')->store('sorteos', 'public');
+            $data['imagen'] = $path;
+        }
+
+        Sorteo::create($data);
 
         return redirect()->route('sorteos.index')->with('success', 'Sorteo creado exitosamente.');
     }
@@ -49,22 +59,39 @@ class SorteoController extends Controller
     public function edit($id)
     {
         $sorteo = Sorteo::findOrFail($id);
-        $juegos = Juego::all(); // Obtener todos los juegos para el select
+        $juegos = Juego::all();
         return view('sorteos.edit', compact('sorteo', 'juegos'));
     }
 
     // Actualizar un sorteo existente
     public function update(Request $request, $id)
     {
-        // Validar datos
         $request->validate([
             'juego_id' => 'nullable|exists:juegos,id',
             'titulo' => 'required|string|max:100',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'requisitos' => 'nullable|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_final' => 'required|date|after:fecha_inicio',
         ]);
 
         $sorteo = Sorteo::findOrFail($id);
-        $sorteo->update($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('imagen')) {
+            // Eliminar la imagen antigua si existe
+            if ($sorteo->imagen) {
+                Storage::disk('public')->delete($sorteo->imagen);
+            }
+            // Guardar la nueva imagen
+            $path = $request->file('imagen')->store('sorteos', 'public');
+            $data['imagen'] = $path;
+        } else {
+            // Mantener la imagen existente
+            $data['imagen'] = $sorteo->imagen;
+        }
+
+        $sorteo->update($data);
 
         return redirect()->route('sorteos.index')->with('success', 'Sorteo actualizado exitosamente.');
     }
@@ -73,6 +100,12 @@ class SorteoController extends Controller
     public function destroy($id)
     {
         $sorteo = Sorteo::findOrFail($id);
+        
+        // Eliminar la imagen del disco si existe
+        if ($sorteo->imagen) {
+            Storage::disk('public')->delete($sorteo->imagen);
+        }
+        
         $sorteo->delete();
 
         return redirect()->route('sorteos.index')->with('success', 'Sorteo eliminado exitosamente.');

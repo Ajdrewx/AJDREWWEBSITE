@@ -1,30 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Agregar Juego')
-
 @section('content')
-    <h1>Agregar Juego</h1>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('juegos.store') }}" method="POST">
+<div class="container">
+    <h1>Crear Juego</h1>
+    <form action="{{ route('juegos.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <div class="form-group">
-            <label for="nombre">Nombre</label>
-            <input type="text" name="nombre" id="nombre" class="form-control" required>
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
         </div>
-        <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" id="descripcion" class="form-control"></textarea>
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Imagen</label>
+            <input type="file" class="form-control" id="imagen" name="imagen" required>
         </div>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Crear Juego</button>
+        <a href="{{ route('juegos.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
+</div>
 @endsection

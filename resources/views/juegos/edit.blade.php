@@ -1,31 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Juego')
-
 @section('content')
+<div class="container">
     <h1>Editar Juego</h1>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('juegos.update', $juego->id) }}" method="POST">
+    <form action="{{ route('juegos.update', $juego->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-        <div class="form-group">
-            <label for="nombre">Nombre</label>
-            <input type="text" name="nombre" id="nombre" class="form-control" value="{{ $juego->nombre }}" required>
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ $juego->nombre }}" required>
         </div>
-        <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" id="descripcion" class="form-control">{{ $juego->descripcion }}</textarea>
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Imagen</label>
+            <input type="file" class="form-control" id="imagen" name="imagen">
+            <small class="form-text text-muted">Dejar en blanco si no desea cambiar la imagen.</small>
         </div>
-        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion">{{ $juego->descripcion }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Juego</button>
+        <a href="{{ route('juegos.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
+</div>
 @endsection

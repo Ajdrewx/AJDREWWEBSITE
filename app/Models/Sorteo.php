@@ -9,10 +9,18 @@ class Sorteo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['juego_id', 'titulo', 'requisitos'];
+    protected $fillable = [
+        'juego_id',
+        'titulo',
+        'imagen',
+        'requisitos',
+        'fecha_inicio',
+        'fecha_final',
+    ];
 
+    // Relación con el modelo Juego
     public function juego()
     {
-        return $this->belongsTo(Juego::class, 'juego_id');
+        return $this->belongsTo(Juego::class);
     }
 }

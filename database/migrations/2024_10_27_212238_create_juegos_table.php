@@ -11,6 +11,7 @@ class CreateJuegosTable extends Migration
         Schema::create('juegos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
+            $table->string('imagen')->nullable(); // Nueva columna imagen
             $table->text('descripcion')->nullable();
             $table->timestamps();
         });

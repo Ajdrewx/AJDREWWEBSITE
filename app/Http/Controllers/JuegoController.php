@@ -25,15 +25,25 @@ class JuegoController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:100',
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validar como imagen
             'descripcion' => 'nullable|string',
         ]);
 
-        Juego::create([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-        ]);
+        // Inicializa un array para almacenar los datos validados
+        $validatedData = $request->only(['nombre', 'descripcion']);
 
-        return redirect()->route('juegos.index')->with('success', 'Juego creado con éxito.');
+        if ($request->hasFile('imagen')) {
+            // Guardar la imagen en `storage/app/public/juegos`
+            $path = $request->file('imagen')->store('juegos', 'public');
+            $validatedData['imagen'] = $path; // Agrega la ruta de la imagen a los datos validados
+        }
+
+        try {
+            Juego::create($validatedData); // Crea el nuevo juego
+            return redirect()->route('juegos.index')->with('success', 'Juego creado con éxito.'); // Redirige con mensaje de éxito
+        } catch (\Exception $e) {
+            return back()->with('error', 'Hubo un problema al crear el juego: ' . $e->getMessage()); // Maneja el error
+        }
     }
 
     // Muestra un juego específico
@@ -55,24 +65,40 @@ class JuegoController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:100',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Cambiar a nullable
             'descripcion' => 'nullable|string',
         ]);
 
-        $juego = Juego::findOrFail($id); // Busca el juego por ID
-        $juego->update([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-        ]);
+        try {
+            $juego = Juego::findOrFail($id); // Busca el juego por ID
+            $data = [
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+            ];
 
-        return redirect()->route('juegos.index')->with('success', 'Juego actualizado con éxito.');
+            // Solo actualiza la imagen si se ha subido una nueva
+            if ($request->hasFile('imagen')) {
+                $data['imagen'] = $request->file('imagen')->store('juegos', 'public'); // Guardar la imagen
+            } else {
+                $data['imagen'] = $juego->imagen; // Mantiene la imagen existente
+            }
+
+            $juego->update($data); // Actualiza el juego
+            return redirect()->route('juegos.index')->with('success', 'Juego actualizado con éxito.'); // Redirige con mensaje de éxito
+        } catch (\Exception $e) {
+            return back()->with('error', 'Hubo un problema al actualizar el juego: ' . $e->getMessage()); // Maneja el error
+        }
     }
 
     // Elimina un juego específico de la base de datos
     public function destroy($id)
     {
-        $juego = Juego::findOrFail($id); // Busca el juego por ID
-        $juego->delete(); // Elimina el juego
-
-        return redirect()->route('juegos.index')->with('success', 'Juego eliminado con éxito.');
+        try {
+            $juego = Juego::findOrFail($id); // Busca el juego por ID
+            $juego->delete(); // Elimina el juego
+            return redirect()->route('juegos.index')->with('success', 'Juego eliminado con éxito.'); // Redirige con mensaje de éxito
+        } catch (\Exception $e) {
+            return back()->with('error', 'Hubo un problema al eliminar el juego: ' . $e->getMessage()); // Maneja el error
+        }
     }
 }

@@ -3,26 +3,22 @@
 
 @section('content')
 <div class="container">
-    <h1>Detalle del Sorteo</h1>
-    <div class="card">
-        <div class="card-header">
-            <h2>{{ $sorteo->titulo }}</h2>
-        </div>
-        <div class="card-body">
-            <p><strong>Juego:</strong> {{ $sorteo->juego->titulo ?? 'N/A' }}</p>
-            <p><strong>Requisitos:</strong> {{ $sorteo->requisitos }}</p>
-            <p><strong>Creado el:</strong> {{ $sorteo->fecha_creacion }}</p>
-            <p><strong>Actualizado el:</strong> {{ $sorteo->fecha_actualizacion }}</p>
-        </div>
-        <div class="card-footer">
-            <a href="{{ route('sorteos.index') }}" class="btn btn-secondary">Volver a la lista</a>
-            <a href="{{ route('sorteos.edit', $sorteo->id) }}" class="btn btn-warning">Editar</a>
-            <form action="{{ route('sorteos.destroy', $sorteo->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger">Eliminar</button>
-            </form>
-        </div>
+    <h1>{{ $sorteo->titulo }}</h1>
+    <div class="mb-3">
+        <strong>Juego:</strong> {{ $sorteo->juego->nombre ?? 'N/A' }}<br>
+        <strong>Requisitos:</strong> {{ $sorteo->requisitos }}<br>
+        <strong>Fecha de Inicio:</strong> {{ \Carbon\Carbon::parse($sorteo->fecha_inicio)->format('d/m/Y') }}<br>
+        <strong>Fecha Final:</strong> {{ \Carbon\Carbon::parse($sorteo->fecha_final)->format('d/m/Y') }}<br>
     </div>
+    <div class="mb-3">
+        <strong>Imagen:</strong><br>
+        @if ($sorteo->imagen)
+            <img src="{{ asset('storage/' . $sorteo->imagen) }}" alt="Imagen del Sorteo" class="img-thumbnail" style="max-width: 300px;">
+        @else
+            <span>No disponible</span>
+        @endif
+    </div>
+    <a href="{{ route('sorteos.index') }}" class="btn btn-secondary">Volver a la lista</a>
+    <a href="{{ route('sorteos.edit', $sorteo->id) }}" class="btn btn-warning">Editar</a>
 </div>
 @endsection

@@ -9,19 +9,19 @@ class CreateSorteosTable extends Migration
     public function up()
     {
         Schema::create('sorteos', function (Blueprint $table) {
-            $table->id(); // Crea la columna id (INT AUTO_INCREMENT PRIMARY KEY)
-            $table->unsignedBigInteger('juego_id')->nullable(); // Crea la columna juego_id
-            $table->string('titulo', 100); // Crea la columna titulo
-            $table->text('requisitos')->nullable(); // Crea la columna requisitos
-            $table->timestamps(); // Crea las columnas created_at y updated_at
-
-            // Definir la clave foránea
-            $table->foreign('juego_id')->references('id')->on('juegos')->onDelete('set null');
+            $table->id();
+            $table->foreignId('juego_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('titulo');
+            $table->string('imagen')->nullable();
+            $table->string('requisitos')->nullable();
+            $table->timestamp('fecha_inicio')->nullable(); // Agregar columna de fecha de inicio
+            $table->timestamp('fecha_final')->nullable(); // Agregar columna de fecha final
+            $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('sorteos'); // Elimina la tabla si se hace una reversión
+        Schema::dropIfExists('sorteos');
     }
 }

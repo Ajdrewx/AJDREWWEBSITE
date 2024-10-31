@@ -9,10 +9,13 @@ class Juego extends Model
 {
     use HasFactory;
 
-    protected $table = 'juegos'; // Especifica el nombre de la tabla si no sigue la convención
+    protected $fillable = ['nombre', 'imagen', 'descripcion'];
 
-    protected $fillable = [
-        'nombre',
-        'descripcion',
-    ];
+    // Ejemplo de relación con el modelo Equipo
+    public function equipos()
+    {
+        return $this->hasMany(Equipo::class); // Relación uno a muchos
+    }
+
+    // Agrega otras relaciones si las necesitas
 }
